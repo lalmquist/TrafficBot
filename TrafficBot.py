@@ -4,13 +4,7 @@ from twilio.rest import Client
 import time
 from datetime import datetime
 
-# init variables
-weekday = True
-direction = 0
-textBody = "Estimated travel time"
 active = True
-
-slow_time = 25
 
 # ========================
 # Create Message Function
@@ -74,6 +68,11 @@ def sendMessage(textBody):
 
 while active:
 
+  # init variables
+  textBody = "Estimated travel time"
+  
+  slow_time = 25
+
   # get date and time info
   now = datetime.now()
   dayofweek = now.weekday()
@@ -83,21 +82,25 @@ while active:
   # is today a weekday
   if dayofweek != 5 and dayofweek != 6:
     weekday = True
+  else:
+    weekday = False
 
   # is now morning or afternoon
-  if hour < 10 and hour > 7:
+  if hour < 10 and hour >= 7:
     # home to work
     direction = 1
-  if hour < 19 and hour > 16:
+  elif hour < 19 and hour >= 16:
     # work to home
     direction = 2
+  else:
+    direction = 0
 
   # if not weekday or travel time, exit
   if weekday == False or direction != 0:
 
-    time.sleep(60*15)
     message = createMessage(direction, textBody)
 
     if message != "":
       sendMessage(message)
-      time.sleep(30*60)
+
+    time.sleep(30*60)
