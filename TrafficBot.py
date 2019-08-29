@@ -10,7 +10,7 @@ direction = 0
 textBody = "Estimated travel time"
 active = True
 
-slow_time = 10
+slow_time = 25
 
 # ========================
 # Create Message Function
@@ -95,9 +95,9 @@ while active:
   # if not weekday or travel time, exit
   if weekday == False or direction != 0:
 
+    time.sleep(60*15)
     message = createMessage(direction, textBody)
 
-    print(message)
     if message != "":
       sendMessage(message)
-      time.sleep(30)
+      time.sleep(30*60)
