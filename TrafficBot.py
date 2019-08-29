@@ -39,8 +39,11 @@ def createMessage(direction, textBody):
   time_int = int(traveltime)
 
   if time_int > slow_time:
-    #concat message text with results if greater than 30
-    textBody = textBody + " to home is " + str(time_int) + " min."
+    #concat message text with results if greater than slow time
+    if direction == 1:
+      textBody = textBody + " to work is " + str(time_int) + " min."
+    elif direction == 2:
+      textBody = textBody + " to home is " + str(time_int) + " min."
   else:
     textBody = ''
 
