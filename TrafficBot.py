@@ -11,6 +11,7 @@ from discord.utils import get
 
 client = discord.Client()
 discordToken = "NjE3OTIyMTU3MTA4MDAyODE2.XWyOag.I73zCWedHYBFf-t54QczV19DSjE"
+enabled = False
 
 # ========================
 # Create Message Function
@@ -18,6 +19,7 @@ discordToken = "NjE3OTIyMTU3MTA4MDAyODE2.XWyOag.I73zCWedHYBFf-t54QczV19DSjE"
 def createMessage(direction, textBody):
 
   slow_time = 25
+  traveltime = 0
 
   # MAPQUEST key
   key = "09YpJEQitPjYEwu5rY9ANn2sqb8tUVjp"
@@ -27,9 +29,9 @@ def createMessage(direction, textBody):
   # Direction = 1 From Home to Work
   # Direction = 2 From Work to Home
   if direction == 1:
-    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + key + "&from=5300+Los+Altos+PkwySparks%2C+NV+89436&to=1+Electric+Ave%2C+Sparks%2C+NV+89434&outFormat=json&ambiguities=ignore&routeType=fastest&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false")
+    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + key + "&from=3550+heron's+landing+drive%2C+reno+NV+80502&to=1+Electric+Avenue%2C+sparks+NV+89434&outFormat=json&ambiguities=ignore&routeType=fastest&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false")
   elif direction == 2:
-    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + key + "&from=1+Electric+Ave%2C+Sparks%2C+NV+89434&to=5300+Los+Altos+PkwySparks%2C+NV+89436&outFormat=json&ambiguities=ignore&routeType=fastest&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false")
+    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + key + "&from=1+Electric+Avenue%2C+sparks+NV+89434&to=3550+heron's+landing+drive%2C+reno+NV+80502&outFormat=json&ambiguities=ignore&routeType=fastest&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false")
   else:
     return None
   # JSON load
@@ -58,13 +60,38 @@ def createMessage(direction, textBody):
 
   return textBody
 
+async def mainloop():
+  # init variables
+  textBody = "Estimated travel time"
 
-@client.event
-async def on_ready():
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
+  # get date and time info
+  now = datetime.now()
+  dayofweek = now.weekday()
+  hour = now.hour
+  minute = now.minute
+
+  # is today a weekday
+  if dayofweek != 5 and dayofweek != 6:
+    weekday = True
+  else:
+    weekday = False
+
+  # is now morning or afternoon
+  if hour < 10 and hour >= 7:
+    # home to work
+    direction = 1
+  elif hour < 19 and hour >= 16:
+    # work to home
+    direction = 2
+  else:
+    direction = 0
+    direction = 1
+    
+  if weekday == True and direction != 0 and enabled:
+    print('here')
+    message = createMessage(direction, textBody)
+    await client.send_message(client.get_channel('534045914227277847'), message)
+
 
 class MyCog(object):
     def __init__(self,bot):
@@ -79,50 +106,36 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-        print('test')
-        # init variables
-        textBody = "Estimated travel time"
-
-        # get date and time info
-        now = datetime.now()
-        dayofweek = now.weekday()
-        hour = now.hour
-        minute = now.minute
-
-        # is today a weekday
-        if dayofweek != 5 and dayofweek != 6:
-          weekday = True
-        else:
-          weekday = False
-
-        # is now morning or afternoon
-        if hour < 10 and hour >= 7:
-          # home to work
-          direction = 1
-        elif hour < 19 and hour >= 16:
-          # work to home
-          direction = 2
-        else:
-          direction = 0
-
-        if weekday == False or direction != 0:
-          message = createMessage(direction, textBody)
-          print(message)
-          test = 'test'
-          await client.send_message(client.get_channel('534045914227277847'), test)
-
+      await mainloop()
     async def looping_function(self):
         while True:
             await self.do_stuff()
-            await asyncio.sleep(3)
+            await asyncio.sleep(60*30)
+
+
+
+@client.event
+async def on_message(message):
+
+  if str(message.channel) == "traffic":
+
+    if str(message.author) != "TrafficBot#5586":
+      await client.delete_message(message)
+      await mainloop()
+
+@client.event
+async def on_ready():
+    global enabled
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
+    enabled = True
+
+
 
 loop = asyncio.get_event_loop()
 Daily_Poster = MyCog
 Daily_Poster(loop)
-
-@client.event
-async def on_message(message):
-    print(message.channel)
-
 
 client.run(discordToken)
