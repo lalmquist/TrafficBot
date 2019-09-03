@@ -55,7 +55,7 @@ class MyCog(object):
     async def looping_function(self):
         while True:
             await self.do_stuff()
-            await asyncio.sleep(10)
+            await asyncio.sleep(60*60)
 
 
 
