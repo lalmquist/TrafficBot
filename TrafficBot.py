@@ -85,10 +85,8 @@ async def mainloop():
     direction = 2
   else:
     direction = 0
-    direction = 1
     
   if weekday == True and direction != 0 and enabled:
-    print('here')
     message = createMessage(direction, textBody)
     await client.send_message(client.get_channel('534045914227277847'), message)
 
@@ -111,8 +109,6 @@ class MyCog(object):
         while True:
             await self.do_stuff()
             await asyncio.sleep(60*30)
-
-
 
 @client.event
 async def on_message(message):
