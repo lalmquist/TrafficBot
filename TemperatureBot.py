@@ -10,7 +10,7 @@ from discord.utils import get
 
 client = discord.Client()
 discordToken = "NjE4MTcwNDU0MTEyMjA2ODU2.XW2KDQ.dAyxi8LtHGgqZ2qUHyvSKhQsSNM"
-Enabled = False
+enabled = False
 TempProbe = "28-051760d567ff"
 Done = False
 
@@ -44,13 +44,13 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-        global Enabled
+        global enabled
         global Done
         # get date and time info
         now = datetime.now()
         hour = now.hour
         minute = now.minute
-        if minute == 7 and Enabled and Done == False:
+        if minute == 7 and enabled and Done == False:
             message = read(TempProbe)
             await client.send_message(client.get_channel('618116119848288276'), message)
             Done = True
