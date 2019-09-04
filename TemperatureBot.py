@@ -36,7 +36,7 @@ async def mainloop():
     global enabled
     global Done
 
-    post_time = 4
+    post_time = 0
 
     now = datetime.now()
     hour = now.hour
