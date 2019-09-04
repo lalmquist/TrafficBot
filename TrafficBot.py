@@ -1,6 +1,5 @@
 import requests
 import json
-from twilio.rest import Client
 import time
 from datetime import datetime
 import asyncio
@@ -12,6 +11,7 @@ from discord.utils import get
 client = discord.Client()
 discordToken = "NjE3OTIyMTU3MTA4MDAyODE2.XWyOag.I73zCWedHYBFf-t54QczV19DSjE"
 enabled = False
+done = False
 
 # ========================
 # Create Message Function
@@ -19,7 +19,10 @@ enabled = False
 def createMessage(direction, textBody):
 
   slow_time = 25
-  traveltime = 0
+  traveltime = -444
+  newtime = -444
+  roundedTime = -444
+  time_int = -444
 
   # MAPQUEST key
   key = "09YpJEQitPjYEwu5rY9ANn2sqb8tUVjp"
@@ -41,13 +44,13 @@ def createMessage(direction, textBody):
   traveltime = (body["route"]["realTime"])
 
   # convert to minutes
-  traveltime = traveltime / 60
+  newtime = traveltime / 60
 
   # round value
-  traveltime = round(traveltime)
+  roundedTime = round(newtime)
 
   #cut off all decimals
-  time_int = int(traveltime)
+  time_int = int(roundedTime)
 
   if time_int > slow_time:
     #concat message text with results if greater than slow time
@@ -60,9 +63,11 @@ def createMessage(direction, textBody):
 
   return textBody
 
-async def mainloop():
+async def mainloop(manual):
+  global done
   # init variables
   textBody = "Estimated travel time"
+  post_time = 0
 
   # get date and time info
   now = datetime.now()
@@ -87,8 +92,16 @@ async def mainloop():
     direction = 0
     
   if weekday == True and direction != 0 and enabled:
-    message = createMessage(direction, textBody)
-    await client.send_message(client.get_channel('534045914227277847'), message)
+    if manual == 0:
+      if minute == post_time and done == False:
+        message = createMessage(direction, textBody)
+        await client.send_message(client.get_channel('534045914227277847'), message)
+        done = True
+      elif minute != post_time:
+        done = False
+    elif manual == 1:
+      message = createMessage(direction, textBody)
+      await client.send_message(client.get_channel('534045914227277847'), message)
 
 
 class MyCog(object):
@@ -104,11 +117,11 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-      await mainloop()
+      await mainloop(0)
     async def looping_function(self):
         while True:
             await self.do_stuff()
-            await asyncio.sleep(60*30)
+            await asyncio.sleep(3)
 
 @client.event
 async def on_message(message):
@@ -116,8 +129,15 @@ async def on_message(message):
   if str(message.channel) == "traffic":
 
     if str(message.author) != "TrafficBot#5586":
-      await client.delete_message(message)
-      await mainloop()
+
+      if message.content == "clear" or message.content == "Clear":
+        messages = await message.channel.history(limit=123).flatten()
+        await client.delete_messages(messages)
+      else:
+        await client.delete_message(message)
+        await mainloop(1)
+
+
 
 @client.event
 async def on_ready():
