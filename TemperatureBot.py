@@ -1,6 +1,5 @@
 import requests
 import json
-from twilio.rest import Client
 import time
 from datetime import datetime
 import asyncio
@@ -11,8 +10,9 @@ from discord.utils import get
 
 client = discord.Client()
 discordToken = "NjE4MTcwNDU0MTEyMjA2ODU2.XW2KDQ.dAyxi8LtHGgqZ2qUHyvSKhQsSNM"
-enabled = False
+Enabled = False
 TempProbe = "28-051760d567ff"
+Done = False
 
 def read(i):
     location = '/sys/bus/w1/devices/'+i+'/w1_slave'
@@ -24,18 +24,19 @@ def read(i):
     temperature = float(temperaturedata[2:])
     celcius = temperature / 1000
     farenheit = (celcius * 1.8) + 32
-    return farenheit
+    rounded_farenheit = round(farenheit,2)
+    return rounded_farenheit
 
 # ========================
 # Create Message Function
 # ========================
 
 async def mainloop():
-    global enabled
-
-    if enabled == True:
-        message = read(TempProbe)
-        await client.send_message(client.get_channel('618116119848288276'), message)
+    global Done
+        
+    message = read(TempProbe)
+    await client.send_message(client.get_channel('618116119848288276'), message)
+    Done = True
 
 
 class MyCog(object):
@@ -53,9 +54,18 @@ class MyCog(object):
     async def do_stuff(self):
       await mainloop()
     async def looping_function(self):
-        while True:
+        global Enabled
+        global Done
+        # get date and time info
+        now = datetime.now()
+        hour = now.hour
+        minute = now.minute
+        print(minute)
+        if minute == 0 and Enabled and Done == False:
             await self.do_stuff()
-            await asyncio.sleep(60*60)
+        elif minute != 0:
+            Done = False
+
 
 
 
@@ -65,8 +75,16 @@ async def on_message(message):
   if str(message.channel) == "temperature":
 
     if str(message.author) != "TemperatureBot#0960":
-      await client.delete_message(message)
-      await mainloop()
+
+        if message.content == "clear" or message.content == "Clear":
+
+            message.channel.fetchMessages()
+
+            await client.delete_message(message)
+            print('clearning')
+        else:
+            await client.delete_message(message)
+            await mainloop()
 
 @client.event
 async def on_ready():
