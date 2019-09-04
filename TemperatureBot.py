@@ -58,7 +58,8 @@ class MyCog(object):
         elif minute != 5:
             Done = False
     async def looping_function(self):
-        await self.do_stuff()
+        while True:
+            await self.do_stuff()
 
 
 
@@ -78,7 +79,7 @@ async def on_message(message):
             print('clearning')
         else:
             await client.delete_message(message)
-            await mainloop()
+            await do_stuff()
 
 @client.event
 async def on_ready():
