@@ -27,15 +27,6 @@ def read(i):
     rounded_farenheit = round(farenheit,2)
     return rounded_farenheit
 
-@client.event
-async def on_ready():
-    global enabled
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
-    enabled = True
-
 # ========================
 # Create Message Function
 # ========================
@@ -94,6 +85,14 @@ async def on_message(message):
             await client.delete_message(message)
             await do_stuff()
 
+@client.event
+async def on_ready():
+    global enabled
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
+    enabled = True
 
 
 loop = asyncio.get_event_loop()
