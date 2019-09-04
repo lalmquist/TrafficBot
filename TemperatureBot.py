@@ -50,16 +50,22 @@ class MyCog(object):
         now = datetime.now()
         hour = now.hour
         minute = now.minute
-        if minute == 7 and enabled and Done == False:
+        print('here1')
+        if minute == 11 and enabled and Done == False:
+            print('here5')
             message = read(TempProbe)
             await client.send_message(client.get_channel('618116119848288276'), message)
+            print('here6')
             Done = True
-        elif minute != 7:
+        elif minute != 11:
             Done = False
     async def looping_function(self):
         while True:
+            print('here2')
             await self.do_stuff()
+            print('here3')
             time.sleep(10)
+            print('here4')
 
 
 
