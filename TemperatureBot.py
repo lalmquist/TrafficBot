@@ -51,11 +51,11 @@ class MyCog(object):
         hour = now.hour
         minute = now.minute
         print(minute)
-        if minute == 0 and Enabled and Done == False:
+        if minute == 5 and Enabled and Done == False:
             message = read(TempProbe)
             await client.send_message(client.get_channel('618116119848288276'), message)
             Done = True
-        elif minute != 0:
+        elif minute != 5:
             Done = False
     async def looping_function(self):
         await self.do_stuff()
