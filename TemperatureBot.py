@@ -52,8 +52,6 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-      await mainloop()
-    async def looping_function(self):
         global Enabled
         global Done
         # get date and time info
@@ -62,9 +60,11 @@ class MyCog(object):
         minute = now.minute
         print(minute)
         if minute == 0 and Enabled and Done == False:
-            await self.do_stuff()
+            await mainloop()
         elif minute != 0:
             Done = False
+    async def looping_function(self):
+        await self.do_stuff()
 
 
 
