@@ -25,7 +25,8 @@ def read(i):
     celcius = temperature / 1000
     farenheit = (celcius * 1.8) + 32
     rounded_farenheit = round(farenheit,2)
-    return rounded_farenheit
+    return_str = str(rounded_farenheit) + " F"
+    return return_str
 
 # ========================
 # Create Message Function
@@ -35,14 +36,16 @@ async def mainloop():
     global enabled
     global Done
 
-    post_time = 38
+    post_time = 48
 
     now = datetime.now()
     hour = now.hour
     minute = now.minute
     
+    print(minute)
     if enabled == True and Done == False and minute == post_time:
         message = read(TempProbe)
+        print(message)
         await client.send_message(client.get_channel('618116119848288276'), message)
         Done = True
     elif minute != post_time:
