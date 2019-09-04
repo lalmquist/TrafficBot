@@ -27,6 +27,15 @@ def read(i):
     rounded_farenheit = round(farenheit,2)
     return rounded_farenheit
 
+@client.event
+async def on_ready():
+    global enabled
+    print('Logged in as')
+    print(client.user.name)
+    print(client.user.id)
+    print('------')
+    enabled = True
+
 # ========================
 # Create Message Function
 # ========================
@@ -60,14 +69,12 @@ class MyCog(object):
         elif minute != 11:
             Done = False
     async def looping_function(self):
-        while True:
+        while enabled:
             print('here2')
             await self.do_stuff()
             print('here3')
             time.sleep(10)
             print('here4')
-
-
 
 
 @client.event
@@ -86,15 +93,6 @@ async def on_message(message):
         else:
             await client.delete_message(message)
             await do_stuff()
-
-@client.event
-async def on_ready():
-    global enabled
-    print('Logged in as')
-    print(client.user.name)
-    print(client.user.id)
-    print('------')
-    enabled = True
 
 
 
