@@ -35,7 +35,7 @@ async def mainloop():
     global enabled
     global Done
 
-    post_time = 35
+    post_time = 38
 
     now = datetime.now()
     hour = now.hour
@@ -83,7 +83,8 @@ async def on_message(message):
             print('clearning')
         else:
             await client.delete_message(message)
-            await mainloop()
+            message = read(TempProbe)
+            await client.send_message(client.get_channel('618116119848288276'), message)
 
 @client.event
 async def on_ready():
