@@ -31,6 +31,23 @@ def read(i):
 # Create Message Function
 # ========================
 
+async def mainloop():
+    global enabled
+    global Done
+
+    post_time = 35
+
+    now = datetime.now()
+    hour = now.hour
+    minute = now.minute
+    
+    if enabled == True and Done == False and minute == post_time:
+        message = read(TempProbe)
+        await client.send_message(client.get_channel('618116119848288276'), message)
+        Done = True
+    elif minute != post_time:
+        Done = False
+
 class MyCog(object):
     def __init__(self,bot):
         self.bot = bot
@@ -44,28 +61,11 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-        global enabled
-        global Done
-        # get date and time info
-        now = datetime.now()
-        hour = now.hour
-        minute = now.minute
-        print('here1')
-        if minute == 11 and enabled and Done == False:
-            print('here5')
-            message = read(TempProbe)
-            await client.send_message(client.get_channel('618116119848288276'), message)
-            print('here6')
-            Done = True
-        elif minute != 11:
-            Done = False
+        await mainloop()
     async def looping_function(self):
         while enabled:
-            print('here2')
             await self.do_stuff()
-            print('here3')
-            time.sleep(10)
-            print('here4')
+            await asyncio.sleep(10)
 
 
 @client.event
@@ -83,7 +83,7 @@ async def on_message(message):
             print('clearning')
         else:
             await client.delete_message(message)
-            await do_stuff()
+            await mainloop()
 
 @client.event
 async def on_ready():
