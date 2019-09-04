@@ -36,16 +36,14 @@ async def mainloop():
     global enabled
     global Done
 
-    post_time = 48
+    post_time = 4
 
     now = datetime.now()
     hour = now.hour
     minute = now.minute
     
-    print(minute)
     if enabled == True and Done == False and minute == post_time:
         message = read(TempProbe)
-        print(message)
         await client.send_message(client.get_channel('618116119848288276'), message)
         Done = True
     elif minute != post_time:
@@ -64,9 +62,7 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-        print('test1')
         await mainloop()
-        print('test2')
     async def looping_function(self):
         while True:
             await self.do_stuff()
