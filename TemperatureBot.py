@@ -31,14 +31,6 @@ def read(i):
 # Create Message Function
 # ========================
 
-async def mainloop():
-    global Done
-        
-    message = read(TempProbe)
-    await client.send_message(client.get_channel('618116119848288276'), message)
-    Done = True
-
-
 class MyCog(object):
     def __init__(self,bot):
         self.bot = bot
@@ -60,7 +52,9 @@ class MyCog(object):
         minute = now.minute
         print(minute)
         if minute == 0 and Enabled and Done == False:
-            await mainloop()
+            message = read(TempProbe)
+            await client.send_message(client.get_channel('618116119848288276'), message)
+            Done = True
         elif minute != 0:
             Done = False
     async def looping_function(self):
