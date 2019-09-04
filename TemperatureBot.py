@@ -25,7 +25,7 @@ def read(i):
     celcius = temperature / 1000
     farenheit = (celcius * 1.8) + 32
     rounded_farenheit = round(farenheit,2)
-    return_str = str(rounded_farenheit) + " F"
+    return_str = str(rounded_farenheit) + " °F"
     return return_str
 
 # ========================
@@ -64,7 +64,9 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
+        print('test1')
         await mainloop()
+        print('test2')
     async def looping_function(self):
         while enabled:
             await self.do_stuff()
