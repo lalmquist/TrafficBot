@@ -18,7 +18,6 @@ done = False
 # ========================
 def createMessage(direction, textBody):
 
-  slow_time = 25
   traveltime = -444
   newtime = -444
   roundedTime = -444
@@ -43,32 +42,41 @@ def createMessage(direction, textBody):
   # read travel time
   traveltime = (body["route"]["realTime"])
 
+  print(traveltime)
+
   # convert to minutes
   newtime = traveltime / 60
+  
+  print(newtime)
 
   # round value
   roundedTime = round(newtime)
 
+  print(roundedTime)
+
   #cut off all decimals
   time_int = int(roundedTime)
 
-  if time_int > slow_time:
-    #concat message text with results if greater than slow time
-    if direction == 1:
-      textBody = textBody + " to work is " + str(time_int) + " min."
-    elif direction == 2:
-      textBody = textBody + " to home is " + str(time_int) + " min."
+  print(time_int)
+
+  #concat message text with results if greater than slow time
+  if direction == 1:
+    textBody = textBody + " to work is " + str(time_int) + " min."
+  elif direction == 2:
+    textBody = textBody + " to home is " + str(time_int) + " min."
   else:
     textBody = ''
 
-  return textBody
+  return (time_int,textBody)
 
 async def mainloop(manual):
   global done
   # init variables
   textBody = "Estimated travel time"
   post_time = 0
-
+  slow_time = 27
+  print('here')
+  print(manual)
   # get date and time info
   now = datetime.now()
   dayofweek = now.weekday()
@@ -91,18 +99,21 @@ async def mainloop(manual):
   else:
     direction = 0
     
+  if manual == 1 and enabled:
+    message = createMessage(direction, textBody)
+    if int(message[0]) < 9999:
+      await client.send_message(client.get_channel('534045914227277847'), message[1])
+    else:
+      pass
+
+
   if weekday == True and direction != 0 and enabled:
     if manual == 0:
-      if minute == post_time and done == False:
-        message = createMessage(direction, textBody)
-        await client.send_message(client.get_channel('534045914227277847'), message)
-        done = True
-      elif minute != post_time:
-        done = False
-    elif manual == 1:
       message = createMessage(direction, textBody)
-      await client.send_message(client.get_channel('534045914227277847'), message)
-
+      if int(message[0]) >= slow_time and int(message[0] < 9999):
+        await client.send_message(client.get_channel('534045914227277847'), message[1])
+      else:
+        pass
 
 class MyCog(object):
     def __init__(self,bot):
@@ -121,7 +132,7 @@ class MyCog(object):
     async def looping_function(self):
         while True:
             await self.do_stuff()
-            await asyncio.sleep(3)
+            await asyncio.sleep(10*60)
 
 @client.event
 async def on_message(message):
