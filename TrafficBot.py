@@ -42,22 +42,14 @@ def createMessage(direction, textBody):
   # read travel time
   traveltime = (body["route"]["realTime"])
 
-  print(traveltime)
-
   # convert to minutes
   newtime = traveltime / 60
   
-  print(newtime)
-
   # round value
   roundedTime = round(newtime)
 
-  print(roundedTime)
-
   #cut off all decimals
   time_int = int(roundedTime)
-
-  print(time_int)
 
   #concat message text with results if greater than slow time
   if direction == 1:
@@ -74,9 +66,8 @@ async def mainloop(manual):
   # init variables
   textBody = "Estimated travel time"
   post_time = 0
-  slow_time = 27
-  print('here')
-  print(manual)
+  slow_time = 30
+
   # get date and time info
   now = datetime.now()
   dayofweek = now.weekday()
