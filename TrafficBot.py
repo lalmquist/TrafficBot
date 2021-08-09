@@ -9,31 +9,44 @@ import discord
 from discord.utils import get
 
 client = discord.Client()
-discordToken = "NjE3OTIyMTU3MTA4MDAyODE2.XWyOag.I73zCWedHYBFf-t54QczV19DSjE"
+
+# get non public strings
+# MAPQUEST key
+f=open("mapquest_token.txt","r")
+if f.mode == 'r':
+    api_key = f.read()
+
+# start address    
+f=open("start_address.txt","r")
+if f.mode == 'r':
+    start_addr = f.read()
+
+# end address    
+f=open("end_address.txt","r")
+if f.mode == 'r':
+    end_addr = f.read()
+
 enabled = False
 done = False
 
 # ========================
 # Create Message Function
 # ========================
-def createMessage(direction, textBody):
+def create_message(direction, text_body, api_key, start_addr, end_addr):
 
   traveltime = -444
   newtime = -444
   roundedTime = -444
   time_int = -444
 
-  # MAPQUEST key
-  key = "09YpJEQitPjYEwu5rY9ANn2sqb8tUVjp"
-
   # JSON get
 
   # Direction = 1 From Home to Work
   # Direction = 2 From Work to Home
   if direction == 1:
-    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + key + "&from=3550+heron's+landing+drive%2C+reno+NV+80502&to=1+Electric+Avenue%2C+sparks+NV+89434&outFormat=json&ambiguities=ignore&routeType=fastest&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false")
+    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + api_key + start_addr)
   elif direction == 2:
-    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + key + "&from=1+Electric+Avenue%2C+sparks+NV+89434&to=3550+heron's+landing+drive%2C+reno+NV+80502&outFormat=json&ambiguities=ignore&routeType=fastest&doReverseGeocode=false&enhancedNarrative=false&avoidTimedConditions=false")
+    response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + api_key + end_addr)
   else:
     return None
   # JSON load
@@ -53,18 +66,18 @@ def createMessage(direction, textBody):
 
   #concat message text with results if greater than slow time
   if direction == 1:
-    textBody = textBody + " to work is " + str(time_int) + " min."
+    text_body = text_body + " to work is " + str(time_int) + " min."
   elif direction == 2:
-    textBody = textBody + " to home is " + str(time_int) + " min."
+    text_body = text_body + " to home is " + str(time_int) + " min."
   else:
-    textBody = ''
+    text_body = ''
 
-  return (time_int,textBody)
+  return (time_int,text_body)
 
 async def mainloop(manual):
   global done
   # init variables
-  textBody = "Estimated travel time"
+  text_body = "Estimated travel time"
   post_time = 0
   slow_time = 30
 
@@ -91,7 +104,7 @@ async def mainloop(manual):
     direction = 0
     
   if manual == 1 and enabled:
-    message = createMessage(direction, textBody)
+    message = create_message(direction, text_body, api_key, start_addr, end_addr)
     if int(message[0]) < 9999:
       await client.send_message(client.get_channel('534045914227277847'), message[1])
     else:
@@ -100,7 +113,7 @@ async def mainloop(manual):
 
   if weekday == True and direction != 0 and enabled:
     if manual == 0:
-      message = createMessage(direction, textBody)
+      message = create_message(direction, text_body, api_key, start_addr, end_addr)
       if int(message[0]) >= slow_time and int(message[0] < 9999):
         await client.send_message(client.get_channel('534045914227277847'), message[1])
       else:
@@ -155,5 +168,10 @@ async def on_ready():
 loop = asyncio.get_event_loop()
 Daily_Poster = MyCog
 Daily_Poster(loop)
+
+# get discord token
+f=open("discord_token.txt","r")
+if f.mode == 'r':
+    discordToken = f.read()
 
 client.run(discordToken)
