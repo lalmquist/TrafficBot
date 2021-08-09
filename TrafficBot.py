@@ -50,7 +50,11 @@ def create_message(direction, text_body, api_key, start_addr, end_addr):
   else:
     return None
   # JSON load
-  body = json.loads(response.content)
+  try:
+    body = json.loads(response.content)
+  except:
+    print("Response Failed :" + str(response.status_code))
+    return
 
   # read travel time
   traveltime = (body["route"]["realTime"])
@@ -106,7 +110,7 @@ async def mainloop(manual):
   if manual == 1 and enabled:
     message = create_message(direction, text_body, api_key, start_addr, end_addr)
     if int(message[0]) < 9999:
-      await client.send_message(client.get_channel('534045914227277847'), message[1])
+      await client.send_message(client.get_channel('872238015420981318'), message[1])
     else:
       pass
 
@@ -115,7 +119,7 @@ async def mainloop(manual):
     if manual == 0:
       message = create_message(direction, text_body, api_key, start_addr, end_addr)
       if int(message[0]) >= slow_time and int(message[0] < 9999):
-        await client.send_message(client.get_channel('534045914227277847'), message[1])
+        await client.send_message(client.get_channel('872238015420981318'), message[1])
       else:
         pass
 
