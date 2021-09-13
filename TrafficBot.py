@@ -106,11 +106,14 @@ async def mainloop(manual):
     direction = 2
   else:
     direction = 0
+
+  channel = client.get_channel(872238015420981318)
+  print(channel)
     
   if manual == 1 and enabled:
     message = create_message(direction, text_body, api_key, start_addr, end_addr)
     if int(message[0]) < 9999:
-      await client.send_message(client.get_channel('872238015420981318'), message[1])
+      await channel.send(message[1])
     else:
       pass
 
@@ -119,7 +122,7 @@ async def mainloop(manual):
     if manual == 0:
       message = create_message(direction, text_body, api_key, start_addr, end_addr)
       if int(message[0]) >= slow_time and int(message[0] < 9999):
-        await client.send_message(client.get_channel('872238015420981318'), message[1])
+        await channel.send(message[1])
       else:
         pass
 
@@ -151,9 +154,9 @@ async def on_message(message):
 
       if message.content == "clear" or message.content == "Clear":
         messages = await message.channel.history(limit=123).flatten()
-        await client.delete_messages(messages)
+        await messages.delete()
       else:
-        await client.delete_message(message)
+        await message.delete()
         await mainloop(1)
 
 
