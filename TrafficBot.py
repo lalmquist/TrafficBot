@@ -111,19 +111,21 @@ async def mainloop(manual):
     
   if manual == 1 and enabled:
     message = create_message(direction, text_body, api_key, start_addr, end_addr)
-    if int(message[0]) < 9999:
-      await channel.send(message[1])
-    else:
-      pass
+    if message != None:
+      if int(message[0]) < 9999:
+        await channel.send(message[1])
+      else:
+        pass
 
 
   if weekday == True and direction != 0 and enabled:
     if manual == 0:
       message = create_message(direction, text_body, api_key, start_addr, end_addr)
-      if int(message[0]) >= slow_time and int(message[0] < 9999):
-        await channel.send(message[1])
-      else:
-        pass
+      if message != None:
+        if int(message[0]) >= slow_time and int(message[0] < 9999):
+          await channel.send(message[1])
+        else:
+          pass
 
 class MyCog(object):
     def __init__(self,bot):
