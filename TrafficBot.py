@@ -108,7 +108,6 @@ async def mainloop(manual):
     direction = 0
 
   channel = client.get_channel(872238015420981318)
-  print(channel)
     
   if manual == 1 and enabled:
     message = create_message(direction, text_body, api_key, start_addr, end_addr)
