@@ -1,10 +1,7 @@
 import requests
 import json
-import time
 from datetime import datetime
 import asyncio
-import aiohttp
-import os
 import discord
 from discord.utils import get
 
@@ -27,17 +24,14 @@ if f.mode == 'r':
     end_addr = f.read()
 
 enabled = False
-done = False
 
 # ========================
 # Create Message Function
 # ========================
 def create_message(direction, text_body, api_key, start_addr, end_addr):
 
+  # init value to default error
   traveltime = -444
-  newtime = -444
-  roundedTime = -444
-  time_int = -444
 
   # JSON get
 
@@ -48,51 +42,45 @@ def create_message(direction, text_body, api_key, start_addr, end_addr):
   elif direction == 2:
     response = requests.get("https://www.mapquestapi.com/directions/v2/route?key=" + api_key + end_addr)
   else:
-    return None
+    return(-444,"invalid direction")
+  
   # JSON load
   try:
     body = json.loads(response.content)
   except:
     print("Response Failed :" + str(response.status_code))
-    return
+    return(-444,"API Response Failed")
 
   # read travel time
   traveltime = (body["route"]["realTime"])
 
-  # convert to minutes
-  newtime = traveltime / 60
+  # convert to minutes and round
+  traveltime = int(round(traveltime / 60))
   
-  # round value
-  roundedTime = round(newtime)
-
-  #cut off all decimals
-  time_int = int(roundedTime)
-
   #concat message text with results if greater than slow time
   if direction == 1:
-    text_body = text_body + " to work is " + str(time_int) + " min."
+    text_body = text_body + " to work is " + str(traveltime) + " min."
   elif direction == 2:
-    text_body = text_body + " to home is " + str(time_int) + " min."
-  else:
-    text_body = ''
+    text_body = text_body + " to home is " + str(traveltime) + " min."
 
-  return (time_int,text_body)
+  return (traveltime,text_body)
 
 async def mainloop(manual):
-  global done
   # init variables
   text_body = "Estimated travel time"
-  post_time = 0
+  
+  # auto post traffic times if longer than this
   slow_time = 30
 
+  # 9999 is an error/invalid response from API
+  invalidresponse = 9999
+
   # get date and time info
-  now = datetime.now()
-  dayofweek = now.weekday()
-  hour = now.hour
-  minute = now.minute
+  dt = datetime.now()
+  hour = dt.hour
 
   # is today a weekday
-  if dayofweek != 5 and dayofweek != 6:
+  if dt.weekday() < 5:
     weekday = True
   else:
     weekday = False
@@ -104,28 +92,31 @@ async def mainloop(manual):
   elif hour < 19 and hour >= 16:
     # work to home
     direction = 2
-  else:
-    direction = 0
+  elif manual:
+    # default home to work for manual trigger outside range
+    direction = 1
 
+  # get "traffic" channel in personal server
   channel = client.get_channel(872238015420981318)
-    
-  if manual == 1 and enabled:
-    message = create_message(direction, text_body, api_key, start_addr, end_addr)
-    if message != None:
-      if int(message[0]) < 9999:
-        await channel.send(message[1])
-      else:
-        pass
 
-
-  if weekday == True and direction != 0 and enabled:
-    if manual == 0:
+  if direction > 0 and enabled:
+    if manual or weekday:
       message = create_message(direction, text_body, api_key, start_addr, end_addr)
-      if message != None:
-        if int(message[0]) >= slow_time and int(message[0] < 9999):
+    else:
+      return
+    
+    if manual:
+        # always send message for manual trigger unless invalid response
+        if message[0] < invalidresponse:
           await channel.send(message[1])
-        else:
-          pass
+
+    elif weekday:
+        # only send auto message if traffic detected
+        if message[0] >= slow_time and message[0] < invalidresponse:
+          await channel.send(message[1])
+
+  else:
+    print("invalid direction or bot not loaded yet")
 
 class MyCog(object):
     def __init__(self,bot):
@@ -140,7 +131,7 @@ class MyCog(object):
             pass
     
     async def do_stuff(self):
-      await mainloop(0)
+      await mainloop(False)
     async def looping_function(self):
         while True:
             await self.do_stuff()
@@ -148,19 +139,19 @@ class MyCog(object):
 
 @client.event
 async def on_message(message):
-
+  # only look at messages in traffic channel from users
   if str(message.channel) == "traffic":
-
     if str(message.author) != "TrafficBot#5586":
-
-      if message.content == "clear" or message.content == "Clear":
-        messages = await message.channel.history(limit=123).flatten()
-        await messages.delete()
+      message_lower = message.content.lower()
+      # Clear command
+      if message_lower == "clear":
+        messages = await message.channel.history(limit=50).flatten()
+        for message in messages:
+          await message.delete()
+      # Anything else, trigger response
       else:
         await message.delete()
-        await mainloop(1)
-
-
+        await mainloop(True)
 
 @client.event
 async def on_ready():
@@ -170,8 +161,6 @@ async def on_ready():
     print(client.user.id)
     print('------')
     enabled = True
-
-
 
 loop = asyncio.get_event_loop()
 Daily_Poster = MyCog
